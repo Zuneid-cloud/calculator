@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xam Calculator</title>
+
+    <style>
+        body {
+            background: rgb(224, 219, 219);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: -apple-system;
+        }
+
+        .calculator {
+            width: 300px;
+            overflow: hidden;
+        }
+
+        /* DISPLAY */
+        .display {
+            color: rgb(11, 10, 10);
+            font-size: 60px;
+            text-align: right;
+            padding: 10px;
+            min-height: 80px;
+        }
+
+        /* SLIDER */
+        .slider {
+            display: flex;
+            width: 200%;
+            transition: transform 0.3s ease;
+        }
+
+        .screen {
+            width: 100%;
+        }
+
+        /* GRID */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        /* BUTTON */
+        button {
+            height: 58px;
+            border-radius: 50%;
+            border: none;
+            font-size: 20px;
+        }
+
+        /* COLORS */
+        .gray {
+            background: #a5a5a5;
+        }
+
+        .dark {
+            background: #333;
+            color: white;
+        }
+
+        .orange {
+            background: #ff9500;
+            color: white;
+            box-shadow: 0 0 10px #ff9500;
+        }
+
+        .zero {
+            grid-column: span 2;
+            border-radius: 30px;
+            text-align: left;
+            padding-left: 18px;
+        }
+
+        /* HISTORY */
+        #historyPanel {
+            display: none;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .history-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.clock {
+  font-size: 24px;
+}
+
+.delete {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 12px;
+  background: white;
+  border-radius: 50%;
+}
+    </style>
+</head>
+
+<body>
+    <!-- ABOUT SCREEN -->
+    <div class="calculator">
+
+        <!-- TOP BAR -->
+        <div style="display:flex; justify-content:space-between;">
+            <div class="history-btn">
+  <span class="clock" onclick="toggleHistory()">🕒</span>
+  <span class="delete" onclick="clearHistory()">🗑</span>
+</div>
+            
+            <H5>Made by inferno</H5>
+        </div>
+
+        <div id="display" class="display">0</div>
+
+        <div id="historyPanel"></div>
+
+        <!-- SLIDER -->
+        <div class="slider" id="slider">
+
+            <!-- BASIC -->
+            <div class="screen">
+                <div class="buttons">
+
+                    <button class="gray" onclick="clearDisplay()">AC</button>
+                    <button class="gray" onclick="toggleSign()">+/-</button>
+                    <button class="gray" onclick="percent()">%</button>
+                    <button class="orange" onclick="setOp('/')">÷</button>
+
+                    <button class="dark" onclick="addNum('7')">7</button>
+                    <button class="dark" onclick="addNum('8')">8</button>
+                    <button class="dark" onclick="addNum('9')">9</button>
+                    <button class="orange" onclick="setOp('*')">×</button>
+
+                    <button class="dark" onclick="addNum('4')">4</button>
+                    <button class="dark" onclick="addNum('5')">5</button>
+                    <button class="dark" onclick="addNum('6')">6</button>
+                    <button class="orange" onclick="setOp('-')">−</button>
+
+                    <button class="dark" onclick="addNum('1')">1</button>
+                    <button class="dark" onclick="addNum('2')">2</button>
+                    <button class="dark" onclick="addNum('3')">3</button>
+                    <button class="orange" onclick="setOp('+')">+</button>
+
+                    <button class="dark zero" onclick="addNum('0')">0</button>
+                    <button class="dark" onclick="addNum('.')">.</button>
+                    <button class="orange" onclick="calculate()">=</button>
+
+
+
+                </div>
+            </div>
+
+            <!-- SCI -->
+            <div class="screen">
+                <div class="buttons">
+
+                    <button class="dark" onclick="sin()">sin</button>
+                    <button class="dark" onclick="cos()">cos</button>
+                    <button class="dark" onclick="tan()">tan</button>
+                    <button class="orange" onclick="back()">←</button>
+
+                    <button class="dark" onclick="log()">log</button>
+                    <button class="dark" onclick="ln()">ln</button>
+                    <button class="dark" onclick="sqrt()">√</button>
+                    <button class="dark" onclick="square()">x²</button>
+
+                    <button class="dark" onclick="pi()">π</button>
+                    <button class="dark" onclick="exp()">eˣ</button>
+                    <button class="dark" onclick="absVal()">|x|</button>
+                    <button class="dark" onclick="power()">xʸ</button>
+
+                    <button class="dark zero" onclick="addNum('0')">0</button>
+                    <button class="dark" onclick="addNum('.')">.</button>
+                    <button class="orange" onclick="calculate()">=</button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+
+        let display = document.getElementById("display");
+        let historyPanel = document.getElementById("historyPanel");
+
+        let first = "", second = "", op = "", isSecond = false;
+
+        /* DISPLAY */
+        function updateDisplay(val) {
+            display.innerText = val;
+            let len = val.toString().length;
+            display.style.fontSize = len < 6 ? "60px" : len < 10 ? "42px" : "28px";
+        }
+
+        /* INPUT */
+        function addNum(n) {
+            if (!isSecond) { first += n; updateDisplay(first); }
+            else { second += n; updateDisplay(second); }
+        }
+
+        function setOp(o) {
+            if (first === "") return;
+            op = o;
+            isSecond = true;
+        }
+
+        /* CALCULATE */
+        function calculate() {
+            try {
+                let exp = first + op + second;
+                let result = eval(exp);
+                updateDisplay(result);
+
+                historyPanel.innerHTML += `<div>${exp} = ${result}</div>`;
+
+                first = result.toString(); second = ""; op = ""; isSecond = false;
+            } catch {
+                updateDisplay("Error");
+            }
+        }
+
+        /* BASIC */
+        function clearDisplay() {
+            first = ""; second = ""; op = ""; isSecond = false;
+            updateDisplay("0");
+        }
+        function percent() { first = (display.innerText / 100).toString(); updateDisplay(first); }
+        function toggleSign() { first = (-display.innerText).toString(); updateDisplay(first); }
+
+        /* SCI */
+        function sin() { updateDisplay(Math.sin(display.innerText).toFixed(5)); first = display.innerText; }
+        function cos() { updateDisplay(Math.cos(display.innerText).toFixed(5)); first = display.innerText; }
+        function tan() { updateDisplay(Math.tan(display.innerText).toFixed(5)); first = display.innerText; }
+        function log() { updateDisplay(Math.log10(display.innerText).toFixed(5)); first = display.innerText; }
+        function ln() { updateDisplay(Math.log(display.innerText).toFixed(5)); first = display.innerText; }
+        function sqrt() { updateDisplay(Math.sqrt(display.innerText)); first = display.innerText; }
+        function square() { updateDisplay(display.innerText ** 2); first = display.innerText; }
+        function pi() { updateDisplay(Math.PI.toFixed(6)); first = display.innerText; }
+        function exp() { updateDisplay(Math.exp(display.innerText)); first = display.innerText; }
+        function absVal() { updateDisplay(Math.abs(display.innerText)); first = display.innerText; }
+        function power() { first = display.innerText; op = "**"; isSecond = true; }
+
+        /* HISTORY */
+        function toggleHistory() {
+            historyPanel.style.display =
+                historyPanel.style.display === "none" ? "block" : "none";
+        }
+        function clearHistory() {
+            historyPanel.innerHTML = "";
+        }
+
+        function clearHistory(event) {
+    if (event) event.stopPropagation();
+    historyPanel.innerHTML = "";
+}
+
+        /* SLIDE */
+
+
+        let startX = 0;
+        let endX = 0;
+
+        let slider = document.getElementById("slider");
+
+        // detect touch start
+        slider.addEventListener("touchstart", (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        // detect touch end
+        slider.addEventListener("touchend", (e) => {
+            endX = e.changedTouches[0].clientX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            let diff = startX - endX;
+
+            // swipe left → go to scientific
+            if (diff > 50) {
+                slider.style.transform = "translateX(-50%)";
+            }
+
+            // swipe right → go back
+            else if (diff < -50) {
+                slider.style.transform = "translateX(0%)";
+            }
+        }
+        function next() {
+            slider.style.transform = "translateX(-50%)";
+        }
+
+        function back() {
+            slider.style.transform = "translateX(0%)";
+        }
+    </script>
+
+</body>
+
+</html>
